@@ -35,12 +35,49 @@ public:
         }
         return result;
     }
+
+
 };
 
+class Solution1 {
+    public:
+    string longestPalindrome(string s) {
+        // babad
+        // isP(i, j) = s[i] == s[j] && isP(i+1, j-1)
+        // find the longest j - i when isP(i,j) == true 
 
+        string result("");
 
+        vector<vector<bool>> isP (s.size(), vector<bool>(s.size(), false)); 
+        for (int offset = 0 ; offset < s.size(); offset ++ ) {
+            for (int i = 0; i < s.size(); i++ ) {
+                // 0 0, 1 1
+                int j = i + offset;
 
+                if (j >= s.size()) { // don't forget exceeding 
+                    break;
+                }
 
+                if (offset == 0) {
+                    isP[i][j] = true;
+                } else if ( offset == 1) {
+                    isP[i][j] = (s[i] == s[j]);
+                } else {
+                    isP[i][j] = (s[i] == s[j]) && isP[i+1][j-1];
+                }
+
+                if (isP[i][j]) {
+                    if ( j - i + 1 > result.size()) {
+                        result = s.substr(i, j-i + 1);
+                    }
+                }
+
+            }
+        }
+        
+        return result;
+    }
+};
 
 
 TEST(lengthOfLongestSubstring, solution) {
@@ -48,4 +85,9 @@ TEST(lengthOfLongestSubstring, solution) {
     cout << s.lengthOfLongestSubstring("abba") << endl;
 }
 
+
+TEST(longestPalindrome, solution1) {
+    Solution1 s;
+    cout << s.longestPalindrome("aacabdkacaa") << endl;
+}
 
