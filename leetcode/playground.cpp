@@ -2,6 +2,7 @@
 #include <vector>
 #include <string>
 #include <map>
+#include <queue>
 #include <gtest/gtest.h>
 
 using namespace std;
@@ -80,6 +81,102 @@ class Solution1 {
 };
 
 
+struct TreeNode {
+    int val;
+    TreeNode *left;
+    TreeNode *right;
+    TreeNode(): val(0), left(nullptr), right(nullptr) {}
+    TreeNode(int x): val(x), left(nullptr), right(nullptr) {}
+    TreeNode(int x, TreeNode* left, TreeNode *right) :val(x), left(left), right(right) {}
+};
+
+class Solution2 {
+    public:
+    vector<int> inorderTraversal(TreeNode* root) {
+        // [1 3 2 ]
+        // [1] node = null
+        // [] node = 2
+        // [2] node = 3
+        // [2, 3] node = null 
+        // [2] 3(right ? )
+        vector<TreeNode*> stack;
+        TreeNode* node = root; 
+        vector<int> output; 
+        while (node || !stack.empty()) {
+
+            // all left nodes to the queue 
+            while(node) {
+                stack.push_back(node);
+                node = node->left;
+            }
+
+            // no more nodes to push 
+            // pop the stack 
+            if (!stack.empty()) {
+                TreeNode* last = stack.at(stack.size() - 1);
+                output.push_back(last->val);
+                stack.pop_back();
+
+                // if last has a right node 
+                if (last->right != nullptr) {
+                    node = last->right;
+                }
+            } 
+
+        }
+
+        return output;
+    }
+};
+
+class Solution3 {
+public:
+    int numIslands(vector<vector<char>>& grid) {
+        // BFS queue
+        int count {0};
+        queue<pair<int,int>> q; 
+        int m = grid.size();
+        int n = grid[0].size();
+        vector<pair<int, int>> directions {
+            pair(0, 1), pair(0, -1), pair(1, 0), pair(-1, 0)
+        };
+        for (int i = 0; i < m; i++) {
+            for (int j = 0; j < n; j++) {
+                if (grid[i][j] == '1') {
+                    count ++;
+
+                    // bfs 
+                    q.push(pair<int, int>(i, j));
+                    grid[i][j] = '0';
+                    while(!q.empty()) {
+                        auto p = q.front();
+                        q.pop();
+
+                        // 4 neighbors 
+                        for (int j = 0; j < directions.size(); j++) {
+                            int newx = p.first + directions[j].first;
+                            int newy = p.second + directions[j].second;
+                            if (newx < 0 || newx >= m || newy < 0 || newy >= n) {
+                                continue;
+                            }
+                            if (grid[newx][newy] == '1') {
+                                grid[newx][newy] = '0';
+                                q.push(pair(newx, newy));
+                            }
+                        }
+
+                    }
+
+
+                }
+
+            }
+        }
+        return  count ;
+    }
+};
+
+
 TEST(lengthOfLongestSubstring, solution) {
     Solution s;
     cout << s.lengthOfLongestSubstring("abba") << endl;
@@ -91,3 +188,24 @@ TEST(longestPalindrome, solution1) {
     cout << s.longestPalindrome("aacabdkacaa") << endl;
 }
 
+
+TEST(inorderTraversal, solution2) {
+    // build the tree 
+    TreeNode* root = new TreeNode(1, nullptr, new TreeNode(2, new TreeNode(3), nullptr));
+    Solution2 s; 
+    vector<int> out = s.inorderTraversal(root);
+    copy(out.begin(), out.end(), ostream_iterator<int>(cout, " "));
+}
+
+TEST(numIslands, solution) {
+    vector<vector<char>> grid {
+        {'1','1','1','1','0'},
+        {'1','1','0','1','0'},
+        {'1','1','0','0','0'},
+        {'0','0','0','0','0'}
+    };
+    Solution3 s;
+    s.numIslands(grid);
+
+
+}
